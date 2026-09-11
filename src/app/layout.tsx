@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Hanken_Grotesk } from "next/font/google";
 import { ConditionalShell } from "@/components/public/ConditionalShell";
+import { SessionProviderWrapper } from "@/components/providers/SessionProviderWrapper";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -31,7 +32,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${hankenGrotesk.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-canvas font-sans text-ink-soft">
-        <ConditionalShell>{children}</ConditionalShell>
+        <SessionProviderWrapper>
+          <ConditionalShell>{children}</ConditionalShell>
+        </SessionProviderWrapper>
       </body>
     </html>
   );

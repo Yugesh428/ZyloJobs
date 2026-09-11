@@ -120,8 +120,9 @@ function NavLink({
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const isAdmin = session?.user?.role === "admin";
+  const isLoading = status === "loading";
 
   // Close the mobile drawer on route change
   React.useEffect(() => {
@@ -168,7 +169,9 @@ export function Navbar() {
 
         {/* -------- Right: Auth + actions -------- */}
         <div className="ml-auto hidden items-center gap-3 lg:flex">
-          {isAdmin ? (
+          {isLoading ? (
+            <div className="h-10 w-32 animate-pulse rounded-control bg-surface-subtle" />
+          ) : isAdmin ? (
             <>
               <Link
                 href="/admin/dashboard"
@@ -270,7 +273,9 @@ export function Navbar() {
             </nav>
 
             <div className="flex items-center justify-between">
-              {isAdmin ? (
+              {isLoading ? (
+                <div className="h-10 w-32 animate-pulse rounded-control bg-surface-subtle" />
+              ) : isAdmin ? (
                 <Link
                   href="/admin/dashboard"
                   className={cn(

@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SessionProvider } from "next-auth/react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  // SessionProvider is now in root layout, no need to duplicate here
+  return <>{children}</>;
 }
