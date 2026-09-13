@@ -189,7 +189,7 @@ export function Navbar() {
           ) : (
             <>
               <Link
-                href="/login"
+                href="/worker/login"
                 className="text-body-sm font-medium text-primary transition-colors hover:text-primary-hover"
               >
                 Login
@@ -211,7 +211,7 @@ export function Navbar() {
               </Link>
 
               <Link
-                href="/signup"
+                href="/worker/register"
                 className={cn(
                   "inline-flex h-10 items-center rounded-control px-4",
                   "bg-accent text-body-sm font-semibold text-white",
@@ -289,7 +289,7 @@ export function Navbar() {
               ) : (
                 <>
                   <Link
-                    href="/login"
+                    href="/worker/login"
                     className="text-body-sm font-semibold text-primary"
                   >
                     Login
@@ -304,7 +304,7 @@ export function Navbar() {
                       Post a Job
                     </Link>
                     <Link
-                      href="/signup"
+                      href="/worker/register"
                       className="inline-flex h-10 items-center rounded-control bg-accent px-4 text-body-sm font-semibold text-white"
                     >
                       Sign Up

@@ -1,31 +1,44 @@
+/**
+ * Sequelize singleton — Node.js runtime only.
+ * Never import this from middleware or Edge runtime code.
+ */
 import { Sequelize } from "sequelize";
 
-// This module is Node.js only — never import from Edge runtime code.
+// Guard: blow up early if somehow loaded in Edge
 if (typeof (globalThis as { EdgeRuntime?: unknown }).EdgeRuntime !== "undefined") {
   throw new Error("lib/db must not be imported in Edge runtime");
 }
 
 const DATABASE_URL = process.env.DATABASE_URL;
-
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is not set");
 }
 
-console.log("🔗 Initializing Sequelize connection...");
+// ── Singleton: reuse the connection across hot-reloads in dev ──────────────
+const globalWithSequelize = globalThis as typeof globalThis & {
+  _sequelize?: Sequelize;
+};
 
-export const sequelize = new Sequelize(DATABASE_URL, {
-  dialect: "postgres",
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
+if (!globalWithSequelize._sequelize) {
+  globalWithSequelize._sequelize = new Sequelize(DATABASE_URL, {
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
     },
-  },
-  logging: (msg) => console.log("📊 [Sequelize]", msg),
-});
+    // Only log in development
+    logging: process.env.NODE_ENV === "development"
+      ? (msg) => console.log("📊 [SQL]", msg)
+      : false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+  });
+}
 
-// Test the connection immediately
-sequelize
-  .authenticate()
-  .then(() => console.log("✅ Database connected successfully"))
-  .catch((err) => console.error("❌ Database connection failed:", err));
+export const sequelize = globalWithSequelize._sequelize;

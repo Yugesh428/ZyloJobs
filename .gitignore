@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local file uploads (CV, avatars, etc.) — use S3 in production
+/public/uploads/

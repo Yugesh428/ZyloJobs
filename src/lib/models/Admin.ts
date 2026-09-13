@@ -1,7 +1,9 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, type Optional } from "sequelize";
 import { sequelize } from "@/lib/db";
 
-interface AdminAttributes {
+// ── Attribute interfaces ──────────────────────────────────────────────────────
+
+export interface AdminAttributes {
   id: number;
   name: string;
   email: string;
@@ -10,7 +12,9 @@ interface AdminAttributes {
   updatedAt?: Date;
 }
 
-type AdminCreationAttributes = Optional<AdminAttributes, "id">;
+type AdminCreationAttributes = Optional<AdminAttributes, "id" | "createdAt" | "updatedAt">;
+
+// ── Model class ───────────────────────────────────────────────────────────────
 
 export class Admin
   extends Model<AdminAttributes, AdminCreationAttributes>
@@ -23,6 +27,8 @@ export class Admin
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
 
 Admin.init(
   {
@@ -52,3 +58,5 @@ Admin.init(
     timestamps: true,
   },
 );
+
+export default Admin;

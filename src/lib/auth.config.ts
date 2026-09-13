@@ -1,11 +1,13 @@
 /**
- * Shared auth config — Edge-safe (no DB, no bcrypt).
+ * Edge-safe auth config — no DB imports, no bcrypt.
+ * Used by both middleware (Edge) and the full auth handler (Node.js).
  */
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig: NextAuthConfig = {
   basePath: "/api/auth",
-  providers: [],
+  trustHost: true,          // required for Auth.js v5 / Next.js 15+
+  providers: [],            // Credentials provider added in src/auth.ts (Node only)
   pages: {
     signIn: "/admin/login",
   },
@@ -27,5 +29,4 @@ export const authConfig: NextAuthConfig = {
   },
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
 };
