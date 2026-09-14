@@ -1,369 +1,259 @@
 "use client";
 
-import * as React from "react";
-import { usePathname } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  Building2,
   Users,
   Briefcase,
-  UserCheck,
-  Calendar,
-  ClipboardList,
   FileText,
-  Building2,
-  DollarSign,
-  BarChart3,
-  Settings,
-  ChevronDown,
-  ChevronRight,
-  ShieldCheck,
-  Menu,
-  X,
-  LogOut,
-  BellRing,
-  UserCog,
-  History,
-  MessageSquare,
-  Bell,
-  LifeBuoy,
-  Receipt,
-  Wallet,
-  CreditCard,
-  FileCheck,
-  UserPlus,
-  TrendingUp,
+  Calendar,
+  UserCheck,
   Clock,
-  AlertCircle,
-  Home,
+  DollarSign,
+  MessageSquare,
+  HelpCircle,
+  Megaphone,
+  Settings,
+  LogOut,
   ChevronLeft,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { signOut } from "next-auth/react";
-
-/* -------------------------------------------------------------------------- */
-/*  Types                                                                     */
-/* -------------------------------------------------------------------------- */
+import { Button } from "@/components/ui/button";
 
 interface NavItem {
-  label: string;
-  icon: React.ElementType;
+  title: string;
   href?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
   children?: NavItem[];
 }
 
-const NAV_STRUCTURE: NavItem[] = [
+const navigation: NavItem[] = [
   {
-    label: "Overview",
+    title: "Dashboard",
+    href: "/admin/dashboard",
     icon: LayoutDashboard,
-    children: [
-      { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
-    ],
   },
   {
-    label: "Staffing",
-    icon: Briefcase,
-    children: [
-      { label: "Worker Requests", icon: ClipboardList, href: "/admin/staffing/requests" },
-      { label: "Candidates", icon: UserCheck, href: "/admin/staffing/candidates" },
-      { label: "Interviews", icon: Calendar, href: "/admin/staffing/interviews" },
-      { label: "Assignments", icon: FileCheck, href: "/admin/staffing/assignments" },
-    ],
-  },
-  {
-    label: "Worker Pool",
-    icon: Users,
-    children: [
-      { label: "Workers", icon: Users, href: "/admin/workers" },
-      { label: "All Workers", icon: Users, href: "/admin/workers/all" },
-      { label: "Active Workers", icon: UserCheck, href: "/admin/workers/active" },
-      { label: "Available Workers", icon: UserPlus, href: "/admin/workers/available" },
-      { label: "Onboarding", icon: FileText, href: "/admin/workers/onboarding" },
-      { label: "Performance", icon: TrendingUp, href: "/admin/workers/performance" },
-      { label: "Attendance", icon: Clock, href: "/admin/workers/attendance" },
-      { label: "Leave", icon: Calendar, href: "/admin/workers/leave" },
-      { label: "Documents", icon: FileText, href: "/admin/workers/documents" },
-    ],
-  },
-  {
-    label: "Companies",
+    title: "Management",
     icon: Building2,
     children: [
-      { label: "All Companies", icon: Building2, href: "/admin/companies/all" },
-      { label: "Pending Companies", icon: Clock, href: "/admin/companies/pending" },
-      { label: "Active Companies", icon: UserCheck, href: "/admin/companies/active" },
-      { label: "Contracts", icon: FileCheck, href: "/admin/companies/contracts" },
+      { title: "Companies", href: "/admin/companies", icon: Building2 },
+      { title: "Workers", href: "/admin/workers", icon: Users },
+      { title: "Job Categories", href: "/admin/job-categories", icon: Briefcase },
+      { title: "Jobs", href: "/admin/jobs", icon: Briefcase },
     ],
   },
   {
-    label: "Operations",
-    icon: ClipboardList,
+    title: "Recruitment",
+    icon: FileText,
     children: [
-      { label: "Tasks", icon: ClipboardList, href: "/admin/operations/tasks" },
-      { label: "Complaints", icon: AlertCircle, href: "/admin/operations/complaints" },
-      { label: "Support Tickets", icon: LifeBuoy, href: "/admin/operations/support" },
-      { label: "Announcements", icon: BellRing, href: "/admin/operations/announcements" },
+      { title: "Applications", href: "/admin/applications", icon: FileText, badge: "12" },
+      { title: "Interviews", href: "/admin/interviews", icon: Calendar },
+      { title: "Onboarding", href: "/admin/onboarding", icon: UserCheck },
     ],
   },
   {
-    label: "Finance",
-    icon: DollarSign,
+    title: "Operations",
+    icon: Clock,
     children: [
-      { label: "Payroll", icon: Wallet, href: "/admin/finance/payroll" },
-      { label: "Company Billing", icon: Building2, href: "/admin/finance/billing" },
-      { label: "Invoices", icon: Receipt, href: "/admin/finance/invoices" },
-      { label: "Transactions", icon: CreditCard, href: "/admin/finance/transactions" },
+      { title: "Attendance", href: "/admin/attendance", icon: Clock },
+      { title: "Payroll", href: "/admin/payroll", icon: DollarSign },
     ],
   },
   {
-    label: "Reports",
-    icon: BarChart3,
+    title: "Support",
+    icon: HelpCircle,
     children: [
-      { label: "Workforce Reports", icon: Users, href: "/admin/reports/workforce" },
-      { label: "Company Reports", icon: Building2, href: "/admin/reports/companies" },
-      { label: "Performance Reports", icon: TrendingUp, href: "/admin/reports/performance" },
-      { label: "Financial Reports", icon: DollarSign, href: "/admin/reports/financial" },
+      { title: "Complaints", href: "/admin/complaints", icon: MessageSquare },
+      { title: "Support Tickets", href: "/admin/support", icon: HelpCircle },
     ],
   },
   {
-    label: "System",
-    icon: Settings,
+    title: "Communication",
+    icon: Megaphone,
     children: [
-      { label: "Users & Roles", icon: UserCog, href: "/admin/system/users" },
-      { label: "Notifications", icon: Bell, href: "/admin/system/notifications" },
-      { label: "Audit Logs", icon: History, href: "/admin/system/audit" },
-      { label: "Settings", icon: Settings, href: "/admin/system/settings" },
+      { title: "Announcements", href: "/admin/announcements", icon: Megaphone },
     ],
   },
 ];
 
-/* -------------------------------------------------------------------------- */
-/*  Nav Section Component                                                     */
-/* -------------------------------------------------------------------------- */
-
-function NavSection({
-  item,
-  currentPath,
-  level = 0,
-  isCollapsed = false,
-}: {
-  item: NavItem;
-  currentPath: string;
-  level?: number;
-  isCollapsed?: boolean;
-}) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const hasChildren = item.children && item.children.length > 0;
-
-  if (!hasChildren && item.href) {
-    // Leaf item with href
-    const isActive = currentPath === item.href;
-    return (
-      <Link
-        href={item.href}
-        className={cn(
-          "flex items-center gap-3 rounded-xl px-3 py-2 text-body-sm font-medium transition-colors",
-          level === 0 && "pl-3",
-          level === 1 && "pl-6",
-          level === 2 && "pl-9",
-          isActive
-            ? "bg-primary-soft text-primary"
-            : "text-ink-subtle hover:bg-surface-subtle hover:text-ink"
-        )}
-        title={isCollapsed ? item.label : undefined}
-      >
-        <item.icon className="size-4 shrink-0" aria-hidden />
-        {!isCollapsed && item.label}
-      </Link>
-    );
-  }
-
-  // Parent section with children
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-body-sm font-semibold transition-colors",
-          level === 0 && "text-ink-soft hover:bg-surface-subtle hover:text-ink",
-          level === 1 && "pl-6 text-ink-muted hover:bg-surface-subtle hover:text-ink"
-        )}
-        title={isCollapsed ? item.label : undefined}
-      >
-        <item.icon className="size-4 shrink-0" aria-hidden />
-        {!isCollapsed && (
-          <>
-            <span className="flex-1 text-left">{item.label}</span>
-            {isOpen ? (
-              <ChevronDown className="size-4 shrink-0" aria-hidden />
-            ) : (
-              <ChevronRight className="size-4 shrink-0" aria-hidden />
-            )}
-          </>
-        )}
-      </button>
-
-      {isOpen && hasChildren && !isCollapsed && (
-        <div className="mt-0.5 space-y-0.5">
-          {item.children!.map((child) => (
-            <NavSection
-              key={child.label}
-              item={child}
-              currentPath={currentPath}
-              level={level + 1}
-              isCollapsed={isCollapsed}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Admin Sidebar Component                                                   */
-/* -------------------------------------------------------------------------- */
-
 export function AdminSidebar() {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    Management: true,
+    Recruitment: true,
+    Operations: true,
+    Support: false,
+    Communication: false,
+  });
 
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/admin/login" });
+  const toggleSection = (title: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
   };
 
-  // Desktop sidebar
-  const sidebarContent = (
-    <>
-      {/* Brand */}
-      <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary">
-          <ShieldCheck className="size-4 text-white" aria-hidden />
-        </span>
-        {!isCollapsed && (
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-h6 leading-tight text-ink">ZYLO BRAINS</p>
-            <p className="truncate text-caption text-ink-faint">Admin Portal</p>
+  return (
+    <aside
+      className={cn(
+        "flex flex-col bg-surface border-r border-border transition-all duration-300",
+        collapsed ? "w-20" : "w-64"
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b border-border">
+        {!collapsed && (
+          <div>
+            <h2 className="text-xl font-bold text-primary">ZYLO</h2>
+            <p className="text-xs text-muted-foreground">Admin Panel</p>
           </div>
         )}
-      </div>
-
-      {/* Back to Home */}
-      <div className="border-b border-border p-3">
-        <Link
-          href="/"
-          className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
-            "text-body-sm font-medium text-ink-subtle",
-            "transition-colors hover:bg-primary-soft hover:text-primary"
-          )}
-          title={isCollapsed ? "Back to Home" : undefined}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className={cn(collapsed && "mx-auto")}
         >
-          <Home className="size-4 shrink-0" aria-hidden />
-          {!isCollapsed && "Back to Home"}
-        </Link>
+          {collapsed ? (
+            <ChevronRight className="h-5 w-5" />
+          ) : (
+            <ChevronLeft className="h-5 w-5" />
+          )}
+        </Button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {NAV_STRUCTURE.map((section) => (
-          <NavSection
-            key={section.label}
-            item={section}
-            currentPath={pathname}
-            isCollapsed={isCollapsed}
-          />
-        ))}
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+        {navigation.map((item) => {
+          const Icon = item.icon;
+          const isExpanded = expandedSections[item.title];
+          
+          // Single item (no children)
+          if (!item.children) {
+            const isActive = pathname === item.href;
+            return (
+              <Link key={item.title} href={item.href!} className="no-underline">
+                <div
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:underline hover:decoration-1",
+                    collapsed && "justify-center"
+                  )}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1">{item.title}</span>
+                      {item.badge && (
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-soft text-primary">
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Link>
+            );
+          }
+
+          // Section with children
+          return (
+            <div key={item.title}>
+              <button
+                onClick={() => !collapsed && toggleSection(item.title)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  "text-muted-foreground hover:underline hover:decoration-1",
+                  collapsed && "justify-center"
+                )}
+              >
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                {!collapsed && (
+                  <>
+                    <span className="flex-1 text-left">{item.title}</span>
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </>
+                )}
+              </button>
+
+              {/* Children */}
+              {!collapsed && isExpanded && (
+                <div className="ml-6 mt-1 space-y-1 border-l-2 border-border pl-2">
+                  {item.children.map((child) => {
+                    const ChildIcon = child.icon;
+                    const isActive = pathname === child.href;
+                    
+                    return (
+                      <Link key={child.href} href={child.href!} className="no-underline">
+                        <div
+                          className={cn(
+                            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
+                            isActive
+                              ? "bg-primary/10 text-primary font-medium"
+                              : "text-muted-foreground hover:underline hover:decoration-1"
+                          )}
+                        >
+                          <ChildIcon className="h-4 w-4 flex-shrink-0" />
+                          <span className="flex-1">{child.title}</span>
+                          {child.badge && (
+                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-soft text-primary">
+                              {child.badge}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
-      {/* Sign out */}
-      <div className="border-t border-border p-3">
+      {/* Bottom Navigation */}
+      <div className="p-4 border-t border-border space-y-1">
+        <Link href="/admin/settings" className="no-underline">
+          <div
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+              pathname === "/admin/settings"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:underline hover:decoration-1",
+              collapsed && "justify-center"
+            )}
+          >
+            <Settings className="h-5 w-5 flex-shrink-0" />
+            {!collapsed && <span className="flex-1">Settings</span>}
+          </div>
+        </Link>
+
         <button
-          type="button"
-          onClick={handleSignOut}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
-            "text-body-sm font-medium text-ink-subtle",
-            "transition-colors hover:bg-danger-soft hover:text-danger"
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full",
+            "text-destructive hover:underline hover:decoration-1",
+            collapsed && "justify-center"
           )}
-          title={isCollapsed ? "Sign Out" : undefined}
         >
-          <LogOut className="size-4 shrink-0" aria-hidden />
-          {!isCollapsed && "Sign Out"}
+          <LogOut className="h-5 w-5 flex-shrink-0" />
+          {!collapsed && <span className="flex-1 text-left">Logout</span>}
         </button>
       </div>
-    </>
-  );
-
-  return (
-    <>
-      {/* Desktop Sidebar */}
-      <aside
-        className={cn(
-          "hidden flex-col border-r border-border bg-surface transition-all duration-300 lg:flex",
-          isCollapsed ? "w-20" : "w-72"
-        )}
-      >
-        {sidebarContent}
-
-        {/* Toggle button */}
-        <button
-          type="button"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={cn(
-            "absolute top-20 z-10 hidden size-8 items-center justify-center rounded-full border border-border bg-surface shadow-lg transition-all hover:bg-surface-subtle lg:flex",
-            isCollapsed ? "left-[calc(5rem-1rem)]" : "left-[calc(18rem-1rem)]"
-          )}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {isCollapsed ? (
-            <PanelLeftOpen className="size-4 text-ink-muted" aria-hidden />
-          ) : (
-            <PanelLeftClose className="size-4 text-ink-muted" aria-hidden />
-          )}
-        </button>
-      </aside>
-
-      {/* Mobile Menu Button */}
-      <button
-        type="button"
-        onClick={() => setIsMobileOpen(true)}
-        className="fixed bottom-6 right-6 z-40 grid size-14 place-items-center rounded-full bg-primary shadow-raised lg:hidden"
-        aria-label="Open menu"
-      >
-        <Menu className="size-6 text-white" aria-hidden />
-      </button>
-
-      {/* Mobile Sidebar */}
-      {isMobileOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-50 bg-black/50 lg:hidden"
-            onClick={() => setIsMobileOpen(false)}
-            aria-hidden
-          />
-
-          {/* Drawer */}
-          <aside className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-border bg-surface lg:hidden">
-            {sidebarContent}
-
-            {/* Close button */}
-            <button
-              type="button"
-              onClick={() => setIsMobileOpen(false)}
-              className="absolute right-4 top-4 grid size-8 place-items-center rounded-lg text-ink-muted hover:bg-surface-subtle"
-              aria-label="Close menu"
-            >
-              <X className="size-5" aria-hidden />
-            </button>
-          </aside>
-        </>
-      )}
-    </>
+    </aside>
   );
 }

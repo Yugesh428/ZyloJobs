@@ -60,6 +60,17 @@ export class JobApplication
   declare cvUrl: string | null;
   declare readonly createdAt?: Date;
   declare readonly updatedAt?: Date;
+
+  // Associations
+  declare job?: {
+    id: string;
+    jobRole: string;
+  };
+  declare worker?: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -129,5 +140,26 @@ JobApplication.init(
     ],
   },
 );
+
+/* ------------------------------------------------------------------ */
+/* Associations (defined after init to avoid circular deps)           */
+/* ------------------------------------------------------------------ */
+
+// Import models for associations (using dynamic import to avoid circular deps)
+import("../jobCreation/jobCreationModel").then((module) => {
+  const Job = module.default;
+  JobApplication.belongsTo(Job, {
+    foreignKey: "jobId",
+    as: "job",
+  });
+});
+
+import("../worker/workerModel").then((module) => {
+  const { Worker } = module;
+  JobApplication.belongsTo(Worker, {
+    foreignKey: "workerId",
+    as: "worker",
+  });
+});
 
 export default JobApplication;

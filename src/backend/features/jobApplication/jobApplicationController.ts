@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import JobApplication from "./jobApplicationModel";
+import Job from "../jobCreation/jobCreationModel";
+import { Worker } from "../worker/workerModel";
 import {
   saveFile,
   deleteFile,
@@ -12,6 +14,70 @@ import { logger } from "@/lib/logger";
 import { AppError, errorResponse } from "@/lib/apiError";
 
 const CTX = "JobApplicationController";
+
+/* ------------------------------------------------------------------ */
+/* GET /api/applications                                              */
+/* Query params: ?page, ?limit, ?status                               */
+/* Returns paginated list of all applications (admin use)             */
+/* ------------------------------------------------------------------ */
+
+export async function getAllApplications(req: NextRequest): Promise<NextResponse> {
+  logger.info(CTX, "getAllApplications — start");
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "20", 10);
+    const status = searchParams.get("status")?.trim();
+
+    const offset = (page - 1) * limit;
+
+    const where: { status?: string } = {};
+    if (status && status !== "all") {
+      where.status = status;
+    }
+
+    const { count, rows } = await JobApplication.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: Job,
+          as: "job",
+          attributes: ["id", "jobRole"],
+        },
+        {
+          model: Worker,
+          as: "worker",
+          attributes: ["id", "fullName", "email"],
+        },
+      ],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    logger.info(CTX, "getAllApplications — found", { count, page, limit });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: rows,
+        pagination: {
+          page,
+          limit,
+          total: count,
+          pages: totalPages,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    logger.error(CTX, "getAllApplications — failed", error);
+    return errorResponse(error);
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /* POST /api/applications                                              */

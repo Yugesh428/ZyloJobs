@@ -137,9 +137,11 @@ export async function createJob(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
     const {
+      companyId,
       jobRole,
       department,
       numberOfWorkers,
+      requiredSkills,
       experienceRequired,
       jobLocation,
       workType,
@@ -148,7 +150,7 @@ export async function createJob(req: NextRequest): Promise<NextResponse> {
       status,
     } = body;
 
-    logger.debug(CTX, "createJob — payload", { jobRole, department });
+    logger.debug(CTX, "createJob — payload", { jobRole, department, companyId });
 
     // ── Validation ──────────────────────────────────────────────────────
     if (!jobRole?.trim())
@@ -191,9 +193,11 @@ export async function createJob(req: NextRequest): Promise<NextResponse> {
 
     // ── Create ──────────────────────────────────────────────────────────
     const job = await Job.create({
+      companyId: companyId || null,
       jobRole: jobRole.trim(),
       department: department.trim(),
       numberOfWorkers: numWorkers,
+      requiredSkills: requiredSkills || null,
       experienceRequired,
       jobLocation: jobLocation.trim(),
       workType,
@@ -202,7 +206,7 @@ export async function createJob(req: NextRequest): Promise<NextResponse> {
       status: status ?? "pending",
     });
 
-    logger.info(CTX, "createJob — created", { id: job.id });
+    logger.info(CTX, "createJob — created", { id: job.id, companyId: job.companyId });
 
     return NextResponse.json({ success: true, data: job }, { status: 201 });
   } catch (error) {

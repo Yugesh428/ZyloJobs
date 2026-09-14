@@ -32,6 +32,7 @@ export type JobStatus = "pending" | "processing" | "fulfilled" | "cancelled";
 
 export interface JobAttributes {
   id: string;
+  companyId: string | null;              // FK → companies.id (optional - jobs can be posted generically)
   jobRole: string;
   department: string;
   numberOfWorkers: number;
@@ -48,7 +49,7 @@ export interface JobAttributes {
 
 export interface JobCreationAttributes extends Optional<
   JobAttributes,
-  "id" | "requiredSkills" | "responsibilities" | "status" | "createdAt" | "updatedAt"
+  "id" | "companyId" | "requiredSkills" | "responsibilities" | "status" | "createdAt" | "updatedAt"
 > {}
 
 /* ------------------------------------------------------------------ */
@@ -60,6 +61,7 @@ class Job
   implements JobAttributes
 {
   declare id: string;
+  declare companyId: string | null;
   declare jobRole: string;
   declare department: string;
   declare numberOfWorkers: number;
@@ -85,6 +87,17 @@ Job.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
+    },
+    companyId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      defaultValue: null,
+      references: {
+        model: "companies",
+        key: "id",
+      },
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
     },
     jobRole: {
       type: DataTypes.STRING,
@@ -153,6 +166,7 @@ Job.init(
     tableName: "jobs",
     timestamps: true,
     indexes: [
+      { fields: ["companyId"], name: "idx_job_company" },
       { fields: ["status"], name: "idx_job_status" },
       { fields: ["department"], name: "idx_job_department" },
       { fields: ["experienceRequired"], name: "idx_job_experience" },

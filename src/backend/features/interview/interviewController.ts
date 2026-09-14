@@ -9,6 +9,84 @@ const VALID_TYPES    = ["in-person", "phone", "video"] as const;
 const VALID_STATUSES = ["scheduled", "confirmed", "completed", "cancelled", "no-show"] as const;
 
 /* ------------------------------------------------------------------ */
+/* GET /api/interviews                                                 */
+/* Query params: ?page, ?limit, ?status, ?type                        */
+/* Returns paginated list of all interviews (admin use)               */
+/* ------------------------------------------------------------------ */
+
+export async function getAllInterviews(req: NextRequest): Promise<NextResponse> {
+  logger.info(CTX, "getAllInterviews — start");
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "20", 10);
+    const status = searchParams.get("status")?.trim();
+    const type = searchParams.get("type")?.trim();
+
+    const offset = (page - 1) * limit;
+
+    const where: { status?: string; type?: string } = {};
+    if (status && status !== "all") {
+      where.status = status;
+    }
+    if (type && type !== "all") {
+      where.type = type;
+    }
+
+    // Dynamic imports to avoid circular dependencies
+    const { Worker } = await import("../worker/workerModel");
+    const Job = (await import("../jobCreation/jobCreationModel")).default;
+    const JobApplication = (await import("../jobApplication/jobApplicationModel")).default;
+
+    const { count, rows } = await Interview.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [["scheduledAt", "DESC"]],
+      include: [
+        {
+          model: Worker,
+          as: "worker",
+          attributes: ["id", "fullName", "email"],
+        },
+        {
+          model: Job,
+          as: "job",
+          attributes: ["id", "jobRole"],
+        },
+        {
+          model: JobApplication,
+          as: "application",
+          attributes: ["id", "status"],
+        },
+      ],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    logger.info(CTX, "getAllInterviews — found", { count, page, limit });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: rows,
+        pagination: {
+          page,
+          limit,
+          total: count,
+          pages: totalPages,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    logger.error(CTX, "getAllInterviews — failed", error);
+    return errorResponse(error);
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* POST /api/interviews                                                */
 /* Admin schedules an interview for a shortlisted application.        */
 /*                                                                     */

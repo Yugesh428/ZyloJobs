@@ -90,6 +90,21 @@ export class Interview
   declare status: InterviewStatus;
   declare readonly createdAt?: Date;
   declare readonly updatedAt?: Date;
+
+  // Associations
+  declare worker?: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
+  declare job?: {
+    id: string;
+    jobRole: string;
+  };
+  declare application?: {
+    id: string;
+    status: string;
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -198,5 +213,34 @@ Interview.init(
     ],
   },
 );
+
+/* ------------------------------------------------------------------ */
+/* Associations (defined after init to avoid circular deps)           */
+/* ------------------------------------------------------------------ */
+
+// Import models for associations (using dynamic import to avoid circular deps)
+import("../worker/workerModel").then((module) => {
+  const { Worker } = module;
+  Interview.belongsTo(Worker, {
+    foreignKey: "workerId",
+    as: "worker",
+  });
+});
+
+import("../jobCreation/jobCreationModel").then((module) => {
+  const Job = module.default;
+  Interview.belongsTo(Job, {
+    foreignKey: "jobId",
+    as: "job",
+  });
+});
+
+import("../jobApplication/jobApplicationModel").then((module) => {
+  const JobApplication = module.default;
+  Interview.belongsTo(JobApplication, {
+    foreignKey: "applicationId",
+    as: "application",
+  });
+});
 
 export default Interview;

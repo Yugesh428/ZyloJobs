@@ -24,6 +24,7 @@ import "../src/backend/features/workerSupport/workerSupportTicketModel";
 import "../src/backend/features/companySupport/companySupportModel";
 import "../src/backend/features/Announcement/announcementModel";
 import "../src/backend/features/workerRequest/workerRequestModel";
+import "../src/backend/features/payroll/payrollModel";
 
 async function syncDatabase() {
   try {
