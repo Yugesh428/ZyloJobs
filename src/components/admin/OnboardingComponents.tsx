@@ -708,12 +708,24 @@ export function OnboardingForm({
   const [workers, setWorkers] = useState<Array<{ id: string; fullName: string; email: string }>>([]);
   const [jobs, setJobs] = useState<Array<{ id: string; jobRole: string; department: string }>>([]);
   const [companies, setCompanies] = useState<Array<{ id: string; companyName: string; industry: string }>>([]);
+  const [applications, setApplications] = useState<Array<{
+    id: string;
+    worker?: { fullName: string; email: string };
+    job?: { jobRole: string; department: string };
+    workerId: string;
+    jobId: string;
+  }>>([]);
 
   // Fetch dropdown data
   useEffect(() => {
     const fetchDropdownData = async () => {
       if (mode === "create" && open) {
         try {
+          // Fetch applications (hired/shortlisted)
+          const appsRes = await fetch("/api/applications?limit=200");
+          const appsData = await appsRes.json();
+          if (appsData.success) setApplications(appsData.data);
+
           // Fetch workers
           const workersRes = await fetch("/api/workers?limit=100");
           const workersData = await workersRes.json();
@@ -935,24 +947,35 @@ export function OnboardingForm({
 
               <div className="space-y-2">
                 <Label htmlFor="applicationId">
-                  Application ID <span className="text-destructive">*</span>
+                  Application <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="applicationId"
+                <Select
                   value={formData.applicationId}
-                  onChange={(e) =>
+                  onValueChange={(value) => {
+                    const app = applications.find((a) => a.id === value);
                     setFormData({
                       ...formData,
-                      applicationId: e.target.value,
-                    })
-                  }
-                  placeholder="UUID of the hired application"
-                  required
+                      applicationId: value,
+                      workerId: app?.workerId || formData.workerId,
+                      jobId: app?.jobId || formData.jobId,
+                    });
+                  }}
                   disabled={loading}
-                  className="font-mono"
-                />
+                >
+                  <SelectTrigger id="applicationId">
+                    <SelectValue placeholder="Select an application" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {applications.map((app) => (
+                      <SelectItem key={app.id} value={app.id}>
+                        {app.worker?.fullName || "Unknown Worker"} —{" "}
+                        {app.job?.jobRole || "Unknown Job"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">
-                  Paste the application ID from the applications page
+                  Selecting an application will auto-fill Worker and Job
                 </p>
               </div>
             </div>

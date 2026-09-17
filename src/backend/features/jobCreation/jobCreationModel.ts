@@ -91,7 +91,6 @@ Job.init(
     companyId: {
       type: DataTypes.UUID,
       allowNull: true,
-      defaultValue: null,
       references: {
         model: "companies",
         key: "id",

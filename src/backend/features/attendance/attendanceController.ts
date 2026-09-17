@@ -4,6 +4,8 @@ import Attendance, {
   type AttendanceStatus,
   type LeaveType,
 } from "./attendanceModel";
+import { Worker } from "../worker/workerModel";
+import { Company } from "../companyCreation/companyModel";
 import { logger } from "@/lib/logger";
 import { AppError, errorResponse } from "@/lib/apiError";
 
@@ -226,6 +228,18 @@ export async function getAttendance(req: NextRequest): Promise<NextResponse> {
 
     const { count, rows } = await Attendance.findAndCountAll({
       where,
+      include: [
+        { 
+          model: Worker,
+          as: "worker",
+          attributes: ["id", "fullName", "email"]
+        },
+        { 
+          model: Company,
+          as: "company",
+          attributes: ["id", "companyName", "companyCode"]
+        },
+      ],
       order: [["workDate", "DESC"]],
       limit,
       offset,

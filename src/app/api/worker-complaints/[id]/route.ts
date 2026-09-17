@@ -1,15 +1,15 @@
 /**
- * GET    /api/worker-complaints/[id]  — get single complaint details
- * PATCH  /api/worker-complaints/[id]  — update complaint (status, response, etc.)
- * DELETE /api/worker-complaints/[id]  — delete complaint (admin only)
+ * GET    /api/worker-complaints/[id]  — single complaint
+ * PATCH  /api/worker-complaints/[id]  — admin resolves/updates
+ * DELETE /api/worker-complaints/[id]  — remove complaint
  */
 export const runtime = "nodejs";
 
 import { type NextRequest } from "next/server";
 import {
-  getWorkerComplaintById,
-  updateWorkerComplaint,
-  deleteWorkerComplaint,
+  getComplaintById,
+  updateComplaint,
+  deleteComplaint,
 } from "@/backend/features/workerComplaint/workerComplaintController";
 
 export async function GET(
@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return getWorkerComplaintById(req, id);
+  return getComplaintById(req, id);
 }
 
 export async function PATCH(
@@ -25,7 +25,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return updateWorkerComplaint(req, id);
+  return updateComplaint(req, id);
 }
 
 export async function DELETE(
@@ -33,5 +33,5 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return deleteWorkerComplaint(req, id);
+  return deleteComplaint(req, id);
 }

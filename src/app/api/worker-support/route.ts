@@ -6,14 +6,14 @@ export const runtime = "nodejs";
 
 import { type NextRequest } from "next/server";
 import {
-  getAllWorkerSupportTickets,
-  createWorkerSupportTicket,
+  getAllSupportTickets,
+  createSupportTicket,
 } from "@/backend/features/workerSupport/workerSupportTicketController";
 
 export async function GET(req: NextRequest) {
-  return getAllWorkerSupportTickets(req);
+  return getAllSupportTickets(req);
 }
 
 export async function POST(req: NextRequest) {
-  return createWorkerSupportTicket(req);
+  return createSupportTicket(req);
 }

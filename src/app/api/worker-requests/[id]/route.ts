@@ -1,7 +1,7 @@
 /**
- * GET    /api/worker-requests/[id]  — get single request details
- * PATCH  /api/worker-requests/[id]  — update request (status, response, etc.)
- * DELETE /api/worker-requests/[id]  — delete request (admin only)
+ * GET    /api/worker-requests/:id  — get single worker request
+ * PUT    /api/worker-requests/:id  — update worker request
+ * DELETE /api/worker-requests/:id  — delete worker request
  */
 export const runtime = "nodejs";
 
@@ -12,26 +12,19 @@ import {
   deleteWorkerRequest,
 } from "@/backend/features/workerRequest/workerRequestController";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+type Params = { params: Promise<{ id: string }> };
+
+export async function GET(req: NextRequest, { params }: Params) {
   const { id } = await params;
   return getWorkerRequestById(req, id);
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: Params) {
   const { id } = await params;
   return updateWorkerRequest(req, id);
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: Params) {
   const { id } = await params;
   return deleteWorkerRequest(req, id);
 }

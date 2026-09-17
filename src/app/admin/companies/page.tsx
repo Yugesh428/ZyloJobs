@@ -87,9 +87,22 @@ export default function CompaniesPage() {
       }
       
       const response = await fetch(`/api/companies?${params}`);
-      const data = await response.json();
+      if (!response.ok) {
+        console.error("Failed to fetch companies:", response.status);
+        setLoading(false);
+        return;
+      }
+
+      const text = await response.text();
+      if (!text) {
+        console.error("Empty response from API");
+        setLoading(false);
+        return;
+      }
+
+      const data = JSON.parse(text);
       
-      if (data.success) {
+      if (data.success && Array.isArray(data.data)) {
         setCompanies(data.data);
         setTotalPages(data.pagination.pages);
         setTotalItems(data.pagination.total);

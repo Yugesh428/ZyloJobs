@@ -221,3 +221,26 @@ Attendance.init(
 );
 
 export default Attendance;
+
+/* ------------------------------------------------------------------ */
+/* Associations                                                        */
+/* ------------------------------------------------------------------ */
+
+import { Worker } from "../worker/workerModel";
+import { Company } from "../companyCreation/companyModel";
+import Onboarding from "../onBoarding/onBoardingModel";
+
+Attendance.belongsTo(Worker, {
+  foreignKey: "workerId",
+  as: "worker",
+});
+
+Attendance.belongsTo(Company, {
+  foreignKey: "companyId",
+  as: "company",
+});
+
+Attendance.belongsTo(Onboarding, {
+  foreignKey: "onboardingId",
+  as: "onboarding",
+});

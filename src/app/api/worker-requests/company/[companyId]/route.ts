@@ -1,7 +1,5 @@
 /**
- * GET /api/worker-requests/company/:companyId
- * All worker requests submitted by a specific company.
- * Supports ?status, ?page, ?limit filters.
+ * GET /api/worker-requests/company/:companyId — get all requests for a company
  */
 export const runtime = "nodejs";
 

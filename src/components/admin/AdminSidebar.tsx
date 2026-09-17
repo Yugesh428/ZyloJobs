@@ -22,6 +22,15 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
+  BarChart3,
+  TrendingUp,
+  UserCog,
+  ClipboardList,
+  Layers,
+  Activity,
+  Receipt,
+  ShieldCheck,
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -45,6 +54,7 @@ const navigation: NavItem[] = [
     icon: Building2,
     children: [
       { title: "Companies", href: "/admin/companies", icon: Building2 },
+      { title: "Worker Requests", href: "/admin/worker-requests", icon: ClipboardList },
       { title: "Workers", href: "/admin/workers", icon: Users },
       { title: "Job Categories", href: "/admin/job-categories", icon: Briefcase },
       { title: "Jobs", href: "/admin/jobs", icon: Briefcase },
@@ -82,6 +92,33 @@ const navigation: NavItem[] = [
       { title: "Announcements", href: "/admin/announcements", icon: Megaphone },
     ],
   },
+  {
+    title: "Reports",
+    icon: BarChart3,
+    children: [
+      { title: "Overview",          href: "/admin/reports",                    icon: BarChart3 },
+      { title: "Worker Master",     href: "/admin/reports/workers/master",      icon: Users },
+      { title: "Worker Status",     href: "/admin/reports/workers/status",      icon: UserCog },
+      { title: "Worker Performance",href: "/admin/reports/workers/performance", icon: TrendingUp },
+      { title: "Worker Attendance", href: "/admin/reports/workers/attendance",  icon: Clock },
+      { title: "Company Master",    href: "/admin/reports/companies/master",    icon: Building2 },
+      { title: "Company Requests",  href: "/admin/reports/companies/requests",  icon: ClipboardList },
+      { title: "Company Workers",   href: "/admin/reports/companies/workers",   icon: Users },
+      { title: "Interviews",        href: "/admin/reports/recruitment/interviews", icon: Calendar },
+      { title: "Candidates",        href: "/admin/reports/recruitment/candidates", icon: FileText },
+      { title: "Recruit. Pipeline", href: "/admin/reports/recruitment/pipeline",   icon: Layers },
+      { title: "Request Summary",   href: "/admin/reports/worker-requests/summary",   icon: ClipboardList },
+      { title: "Pending Requests",  href: "/admin/reports/worker-requests/pending",   icon: Clock },
+      { title: "Fulfilled Requests",href: "/admin/reports/worker-requests/fulfilled", icon: UserCheck },
+      { title: "Active Placements", href: "/admin/reports/placements/active",    icon: UserCheck },
+      { title: "Placement History", href: "/admin/reports/placements/history",   icon: Layers },
+      { title: "Issues & Complaints",href: "/admin/reports/performance/complaints", icon: MessageSquare },
+      { title: "Revenue",           href: "/admin/reports/finance/revenue",   icon: DollarSign },
+      { title: "Invoices",          href: "/admin/reports/finance/invoices",  icon: Receipt },
+      { title: "Admin Activity",    href: "/admin/reports/system/activity",   icon: Activity },
+      { title: "Audit Logs",        href: "/admin/reports/system/audit",      icon: ShieldCheck },
+    ],
+  },
 ];
 
 export function AdminSidebar() {
@@ -93,6 +130,7 @@ export function AdminSidebar() {
     Operations: true,
     Support: false,
     Communication: false,
+    Reports: false,
   });
 
   const toggleSection = (title: string) => {
@@ -129,6 +167,22 @@ export function AdminSidebar() {
             <ChevronLeft className="h-5 w-5" />
           )}
         </Button>
+      </div>
+
+      {/* Back to Home */}
+      <div className="px-4 pt-2 pb-4 border-b border-border">
+        <Link href="/" className="no-underline">
+          <div
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+              "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              collapsed && "justify-center"
+            )}
+          >
+            <Home className="h-5 w-5 flex-shrink-0" />
+            {!collapsed && <span>Back to Home</span>}
+          </div>
+        </Link>
       </div>
 
       {/* Navigation */}

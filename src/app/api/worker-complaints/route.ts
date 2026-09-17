@@ -1,19 +1,19 @@
 /**
- * GET  /api/worker-complaints  — list all worker complaints (admin/company)
- * POST /api/worker-complaints  — worker submits a complaint
+ * GET  /api/worker-complaints  — list all complaints against workers (admin)
+ * POST /api/worker-complaints  — company files a complaint against a worker
  */
 export const runtime = "nodejs";
 
 import { type NextRequest } from "next/server";
 import {
-  getAllWorkerComplaints,
-  createWorkerComplaint,
+  getAllComplaints,
+  createComplaint,
 } from "@/backend/features/workerComplaint/workerComplaintController";
 
 export async function GET(req: NextRequest) {
-  return getAllWorkerComplaints(req);
+  return getAllComplaints(req);
 }
 
 export async function POST(req: NextRequest) {
-  return createWorkerComplaint(req);
+  return createComplaint(req);
 }

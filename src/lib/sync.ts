@@ -10,20 +10,9 @@ import { Company }       from "@/backend/features/companyCreation/companyModel";
 import { WorkerRequest } from "@/backend/features/workerRequest/workerRequestModel";
 import { Worker }        from "@/backend/features/worker/workerModel";
 
-// ── Associations ──────────────────────────────────────────────────────────────
-// Company ──< WorkerRequest  (one company → many requests)
-Company.hasMany(WorkerRequest, {
-  foreignKey: "companyId",
-  as: "workerRequests",
-  onDelete: "CASCADE",
-});
-WorkerRequest.belongsTo(Company, {
-  foreignKey: "companyId",
-  as: "company",
-});
-
 // ── Singleton guard ───────────────────────────────────────────────────────────
 let synced = false;
+let associationsDefined = false;
 
 export async function syncDB(): Promise<void> {
   if (synced) return;
@@ -32,7 +21,26 @@ export async function syncDB(): Promise<void> {
     await sequelize.authenticate();
     console.log("✅ DB authenticated");
 
-    await sequelize.sync({ alter: true });
+    // ── Associations (only define once) ──────────────────────────────────────
+    if (!associationsDefined) {
+      // Company ──< WorkerRequest  (one company → many requests)
+      Company.hasMany(WorkerRequest, {
+        foreignKey: "companyId",
+        as: "workerRequests",
+        onDelete: "CASCADE",
+      });
+      WorkerRequest.belongsTo(Company, {
+        foreignKey: "companyId",
+        as: "company",
+      });
+
+      associationsDefined = true;
+      console.log("✅ Associations defined");
+    }
+
+    // Use force: false for production, alter: true can cause issues with FK constraints
+    // For development with schema changes, consider using migrations instead
+    await sequelize.sync({ alter: false });
     console.log("✅ All models synced");
 
     synced = true;
