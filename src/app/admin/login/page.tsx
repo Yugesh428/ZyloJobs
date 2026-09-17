@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const router       = useRouter();
   const params       = useSearchParams();
   const callbackUrl  = params.get("callbackUrl") ?? "/admin/dashboard";
@@ -142,5 +142,17 @@ export default function AdminLoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <React.Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginForm />
+    </React.Suspense>
   );
 }

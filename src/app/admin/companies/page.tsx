@@ -512,7 +512,11 @@ export default function CompaniesPage() {
         open={showFormDialog}
         onOpenChange={setShowFormDialog}
         mode={formMode}
-        initialData={selectedCompany || undefined}
+        initialData={selectedCompany ? {
+          ...selectedCompany,
+          registrationNumber: selectedCompany.registrationNumber ?? undefined,
+          panNumber: selectedCompany.panNumber ?? undefined,
+        } : undefined}
         onSuccess={fetchCompanies}
       />
     </div>

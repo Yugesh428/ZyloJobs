@@ -121,7 +121,7 @@ export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = (session?.user as any)?.role === "admin";
   const isLoading = status === "loading";
 
   // Close the mobile drawer on route change

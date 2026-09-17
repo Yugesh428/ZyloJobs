@@ -33,12 +33,12 @@ export function ReportShell({
         title={title}
         description={description}
         action={
-          <Button variant="outline" asChild>
-            <Link href={backHref}>
+          <Link href={backHref}>
+            <Button variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Reports
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         }
       />
 
