@@ -7,9 +7,9 @@ export const runtime = "nodejs";
 
 import { type NextRequest } from "next/server";
 import {
-  getWorkerSupportTicketById,
-  updateWorkerSupportTicket,
-  deleteWorkerSupportTicket,
+  getSupportTicketById,
+  updateSupportTicket,
+  deleteSupportTicket,
 } from "@/backend/features/workerSupport/workerSupportTicketController";
 
 export async function GET(
@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return getWorkerSupportTicketById(req, id);
+  return getSupportTicketById(req, id);
 }
 
 export async function PATCH(
@@ -25,7 +25,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return updateWorkerSupportTicket(req, id);
+  return updateSupportTicket(req, id);
 }
 
 export async function DELETE(
@@ -33,5 +33,5 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return deleteWorkerSupportTicket(req, id);
+  return deleteSupportTicket(req, id);
 }
